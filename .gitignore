@@ -1,6 +1,20 @@
 *.jpg
 *.npy
-*.csv
-data/chart/*
-data/gasf/*
+
+data/chart/train/buy/*.jpg
+data/chart/train/sell/*.jpg
+data/chart/train/hold/*.jpg
+
+data/chart/test/buy/*.jpg
+data/chart/test/sell/*.jpg
+data/chart/test/hold/*.jpg
+
+data/gasf/train/buy/*.jpg
+data/gasf/train/sell/*.jpg
+data/gasf/train/hold/*.jpg
+
+data/gasf/test/buy/*.jpg
+data/gasf/test/sell/*.jpg
+data/gasf/test/hold/*.jpg
+
 
