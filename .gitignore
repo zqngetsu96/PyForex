@@ -20,4 +20,6 @@ data/gasf/test/buy/*.jpg
 data/gasf/test/sell/*.jpg
 data/gasf/test/hold/*.jpg
 
+*-checkpoint.ipynb
+*-checkpoint.py
 
