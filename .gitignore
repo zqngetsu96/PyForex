@@ -1,5 +1,6 @@
 *.jpg
 *.npy
 *.csv
-data/*
+data/chart/*
+data/gasf/*
 
