@@ -3,25 +3,39 @@ import pandas as pd
 import mplfinance as mpf
 import os
 import glob
+import io
+import IPython.display as IPydisplay
+import matplotlib.pyplot as plt 
+import cv2
 
 
+def get_img_from_fig(fig, dpi=50):
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=dpi)
+    buf.seek(0)
+    img_arr = np.frombuffer(buf.getvalue(), dtype=np.uint8)
+    buf.close()
+    img = cv2.imdecode(img_arr, 1)
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    return img
 
-paths = ['./data/chart/test/buy',
-    './data/chart/test/hold',
-    './data/chart/test/sell',
-    './data/chart/train/buy',
-    './data/chart/train/hold',
-    './data/chart/train/sell'
-    './data/gasf/train/buy',
-    './data/gasf/train/hold',
-    './data/gasf/train/sell',
-    './data/gasf/test/buy',
-    './data/gasf/test/hold',
-    './data/gasf/test/sell']
+def return_img(window_back,dpi = 50, rcparams = {}):
+    buf = io.BytesIO()
+    save = dict(fname=buf,dpi=dpi)
+    s = mpf.make_mpf_style(base_mpf_style='yahoo',gridcolor='black',facecolor='black',rc=rcparams,figcolor='black')
+    fig,_ = mpf.plot(window_back,type='candle',volume=True,savefig=save,style=s,returnfig = True)
+    img = get_img_from_fig(fig, dpi=dpi)
+    return img
+
+
+paths = ['../data/chart_npy',
+         '../data/gasf_npy',
+         '../data/series_npy'
+        ]
 
 def load_frames(path): #takes full path
     rates = pd.read_csv(path,sep =";",names=["Date","hour","Open", "High", "Low", "Close","Volume"],parse_dates=True).reset_index(drop=True)
-    rates['Date'] =pd.to_datetime(rates['Date'] + ' ' + rates['hour']) 
+    rates['Date'] = pd.to_datetime(rates['Date'] + ' ' + rates['hour']) 
     rates['timestamp'] = rates.Date.values.astype(np.int64) // 10 ** 9 #int(rates['ts'].iloc[0] % 3600) to check for new hours when streaming
     del rates['hour']
     close = rates.Close.values
@@ -45,38 +59,36 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
                   window_range_back = 72,
                   window_range_front = 30,
                   keys = [],
+                  dpi = 60,
                   rcparams = {'axes.spines.bottom':False,
-            'axes.spines.left':False,
-            'axes.spines.right':False,
-            'axes.spines.top':False,
+                'axes.spines.left':False,
+                'axes.spines.right':False,
+                'axes.spines.top':False,
             }):
     
-    X_buy = list() #72 OHLC candles window
-    Y_cls_buy = list() #Buy or sell depending on the next 72 candles
-    Y_reg_buy = list() #Next 72 values
+    X_buy = list() #N OHLC candles window
+    X_buy_chart = list()
+    X_buy_gasf = list()
+    Y_reg_buy = list() #Next M values
 
-    X_sell = list() #72 OHLC candles window
-    Y_cls_sell = list() #Buy or sell depending on the next 72 candles
-    Y_reg_sell = list() #N
+    X_sell = list()
+    X_sell_chart = list()
+    X_sell_gasf = list()
+    Y_reg_sell = list()
 
     X_hold = list()
-    Y_cls_hold = list()
+    X_hold_chart = list()
+    X_hold_gasf = list()
     Y_reg_hold = list()    
     
     save_img = save_img
+
         
     TP = tp
     SL_hold = sl_h
     SL = sl
     
-    count_buy = 0
-    count_sell = 0
-    count_hold = 0
 
-    fname_buy = 'window_buy_'
-    fname_sell = 'window_sell_'
-    fname_hold = 'window_hold_'   
-    
     if test == True:
         start = window_range_back + int(r * len(rates))
         end = len(rates)
@@ -84,7 +96,7 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
     else:
         start = window_range_back 
         end = int(len(rates) * r)
-        folder = 'data/chart/train'
+        folder = 'data/'
    
 
     if save_img == True:
@@ -105,15 +117,11 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
         hold_down = window_front[window_front.Low < lastclose - (SL_hold + 0.00100)]
         if  len(hold_up) == 0 and len(hold_down) == 0: #Hold (strong consolidation or possible swing back) 
             X_hold.append(np.array(window_back.values))
-            Y_cls_hold.append(0)
             Y_reg_hold.append(np.array(window_front.values))        
             i += window_range_front
-            if save_img == True:
-                count_hold += 1
-                save = dict(fname='./{}/hold/{}{}.jpg'.format(folder,fname_hold,count_hold),dpi=50)
-                s = mpf.make_mpf_style(base_mpf_style='yahoo',gridcolor='black',facecolor='black',rc=rcparams,figcolor='black')
-                mpf.plot(window_back,type='candle',volume=True,savefig=save,style=s)
-    
+            if save_img == True:  
+                img = return_img(window_back, dpi = dpi, rcparams=rcparams)
+                X_hold_chart.append(img)
         else:
             i+=1
                
@@ -134,27 +142,21 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
             continue
         elif len(TP_hit) > 0 and len(SL_hit) == 0: #buy (no SL hit in period but TP is hit)
             X_buy.append(np.array(window_back.values))
-            Y_cls_buy.append(1)
             Y_reg_buy.append(np.array(window_front.values))
             i += window_range_front
             if save_img == True:
-                count_buy += 1
-                save = dict(fname='./{}/buy/{}{}.jpg'.format(folder,fname_buy,count_buy),dpi=50)
-                s = mpf.make_mpf_style(base_mpf_style='yahoo',gridcolor='black',facecolor='black',rc=rcparams,figcolor='black')
-                mpf.plot(window_back,type='candle',volume=True,savefig=save,style=s)
+                img = return_img(window_back, dpi = dpi, rcparams=rcparams)
+                X_buy_chart.append(img)
         elif len(TP_hit) > 0 and len(SL_hit) > 0:  #buy (both tp and sl hit but SL is hit after TP so trade won)
             TP_hit = TP_hit.iloc[0]
             SL_hit = SL_hit.iloc[0]
             if TP_hit.timestamp < SL_hit.timestamp:       
                 X_buy.append(np.array(window_back.values))
-                Y_cls_buy.append(1)
                 Y_reg_buy.append(np.array(window_front.values))
                 i += window_range_front
                 if save_img == True:
-                    count_buy += 1
-                    save = dict(fname='./{}/buy/{}{}.jpg'.format(folder,fname_buy,count_buy),dpi=50)
-                    s = mpf.make_mpf_style(base_mpf_style='yahoo',gridcolor='black',facecolor='black',rc=rcparams,figcolor='black')
-                    mpf.plot(window_back,type='candle',volume=True,savefig=save,style=s)
+                    img = return_img(window_back, dpi = dpi, rcparams=rcparams)
+                    X_buy_chart.append(img)
             else:
                 i+=1
         else:
@@ -182,27 +184,21 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
             continue
         elif len(TP_hit) > 0 and len(SL_hit) == 0: #buy (no SL hit in period but TP is hit)
             X_sell.append(np.array(window_back.values))
-            Y_cls_sell.append(-1)
             Y_reg_sell.append(np.array(window_front.values))
             i += window_range_front     
             if save_img == True:
-                count_sell+= 1
-                save = dict(fname='./{}/sell/{}{}.jpg'.format(folder,fname_sell,count_sell),dpi=50)
-                s = mpf.make_mpf_style(base_mpf_style='yahoo',gridcolor='black',facecolor='black',rc=rcparams,figcolor='black')
-                mpf.plot(window_back,type='candle',volume=True,savefig=save,style=s)
+                img = return_img(window_back, dpi = dpi, rcparams=rcparams)
+                X_sell_chart.append(img)
         elif len(TP_hit) > 0 and len(SL_hit) > 0:  #buy (both tp and sl hit but SL is hit after TP so trade won)
             TP_hit = TP_hit.iloc[0]
             SL_hit = SL_hit.iloc[0]
             if TP_hit.timestamp < SL_hit.timestamp:       
                 X_sell.append(np.array(window_back.values))
-                Y_cls_sell.append(-1)
                 Y_reg_sell.append(np.array(window_front.values))
                 i += window_range_front
                 if save_img == True:
-                    count_sell+= 1
-                    save = dict(fname='./{}/sell/{}{}.jpg'.format(folder,fname_sell,count_sell),dpi=50)
-                    s = mpf.make_mpf_style(base_mpf_style='yahoo',gridcolor='black',facecolor='black',rc=rcparams,figcolor='black')
-                    mpf.plot(window_back,type='candle',volume=True,savefig=save,style=s)      
+                    img = return_img(window_back, dpi = dpi, rcparams=rcparams)
+                    X_sell_chart.append(img)    
             else:
                 i+=1
         else:
@@ -210,33 +206,33 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
 
 
     X_buy = np.array(X_buy) #72 OHLC candles window
-    Y_cls_buy = np.array(Y_cls_buy) #Buy or sell depending on the next 72 candles
+    X_buy_chart = np.array(X_buy_chart)
     Y_reg_buy = np.array(Y_reg_buy) #Next 72 values
 
 
     X_sell = np.array(X_sell)
-    Y_cls_sell = np.array(Y_cls_sell)
+    X_sell_chart = np.array(X_sell_chart)
     Y_reg_sell = np.array(Y_reg_sell)
 
 
     X_hold = np.array(X_hold)
-    Y_cls_hold = np.array(Y_cls_hold)
+    X_hold_chart = np.array(X_hold_chart)
     Y_reg_hold = np.array(Y_reg_hold)
 
 
     print(X_buy.shape)
     print(Y_reg_buy.shape)
-    print(Y_cls_buy.shape)
+    print(X_buy_chart.shape)
     
     
     print(X_sell.shape)
     print(Y_reg_sell.shape)
-    print(Y_cls_sell.shape)
+    print(X_sell_chart.shape)
     
     print(X_hold.shape)
     print(Y_reg_hold.shape)
-    print(Y_cls_hold.shape)
+    print(X_hold_chart.shape)
 
 
     
-    return X_buy, Y_cls_buy, Y_reg_buy, X_sell, Y_cls_sell, Y_reg_sell, X_hold, Y_cls_hold, Y_reg_hold
+    return X_buy, X_buy_chart, Y_reg_buy, X_sell, X_sell_chart, Y_reg_sell, X_hold, X_hold_chart, Y_reg_hold

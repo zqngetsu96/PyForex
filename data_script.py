@@ -6,14 +6,15 @@ from talib import stream
 import mplfinance as mpf
 from data_utils.get_data import *
 
-acq_window = 5000
-reg_window = 1000
+acq_window = 500
+reg_window = 250
 reg_mean = 75
 deviation = 1 / 100
 
 path = './data/csv/EURUSD60.csv'
 
 rates = load_frames(path)
+rates = rates[-acq_window:]
 rates.tail()
 
 sample = rates[-144:-72]
@@ -21,7 +22,7 @@ sample = rates[-144:-72]
 train_test_ratio = 0.5
 
 
-X_buy, Y_cls_buy, Y_reg_buy, X_sell, Y_cls_sell, Y_reg_sell, X_hold, Y_cls_hold, Y_reg_hold = generate_data(rates, 
+X_buy, X_buy_chart, Y_reg_buy, X_sell, X_sell_chart, Y_reg_sell, X_hold, X_hold_chart, Y_reg_hold = generate_data(rates, 
                                                             r = 1,
                                                             test = False,
                                                             save_img = True,

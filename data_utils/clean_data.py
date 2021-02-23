@@ -5,21 +5,13 @@ import glob
 if os.getcwd().endswith('PyForex'):
     os.chdir('./data_utils')
 
-paths = ['../data/chart/test/buy',
-    '../data/chart/test/hold',
-    '../data/chart/test/sell',
-    '../data/chart/train/buy',
-    '../data/chart/train/hold',
-    '../data/chart/train/sell'
-    '../data/gasf/train/buy',
-    '../data/gasf/train/hold',
-    '../data/gasf/train/sell',
-    '../data/gasf/test/buy',
-    '../data/gasf/test/hold',
-    '../data/gasf/test/sell']
+paths = ['../data/chart_npy',
+         '../data/gasf_npy',
+         '../data/series_npy'
+        ]
 
 for path in paths:
-    files = glob.glob(path+'/*.jpg')
+    files = glob.glob(path+'/*.npy')
     for f in files:
         os.remove(f)
 
