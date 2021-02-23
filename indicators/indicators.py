@@ -4,6 +4,21 @@ import talib as tb
 from indicators.indicator_utils import *
 
 
+def create_HA(rates):
+    df_HA = rates.copy()
+    df_HA['Close']=(rates['Open']+ rates['High']+ rates['Low']+rates['Close'])/4
+
+    for i in range(0, len(rates)):
+        if i == 0:
+            df_HA['Open'][i]= ( (rates['Open'][i] + rates['Close'][i] )/ 2)
+        else:
+            df_HA['Open'][i] = ( (rates['Open'][i-1] + rates['Close'][i-1] )/ 2)
+
+    df_HA['High']=rates[['Open','Close','High']].max(axis=1)
+    df_HA['Low']=rates[['Open','Close','Low']].min(axis=1)
+    keys = ['Open','High','Low','Close']
+    return df_HA,keys
+
 def create_percentage(rates, price = 'Close'):
     rates["percentage"] = rates[price].pct_change()
     keys = ['percentage']
