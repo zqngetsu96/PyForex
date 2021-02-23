@@ -23,3 +23,6 @@ data/gasf/test/hold/*.jpg
 *-checkpoint.ipynb
 *-checkpoint.py
 
+*/__pycache__
+*/.ipynb_checkpoints
+*.ipynb_checkpoints
