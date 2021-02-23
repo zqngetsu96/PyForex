@@ -21,18 +21,15 @@ sample = rates[-144:-72]
 train_test_ratio = 0.5
 
 
-X_buy_train, Y_cls_buy_train, Y_reg_buy_train, 
-X_sell_train, Y_cls_sell_train, Y_reg_sell,
-X_hold_train, Y_cls_hold_train, Y_reg_hold_train = generate_data(rates, 
-                                                            r = train_test_ratio,
+X_buy, Y_cls_buy, Y_reg_buy, X_sell, Y_cls_sell, Y_reg_sell, X_hold, Y_cls_hold, Y_reg_hold = generate_data(rates, 
+                                                            r = 1,
                                                             test = False,
-                                                            save_img = True)
-                                                                                       
-X_buy_test, Y_cls_buy_test, Y_reg_buy_test, 
-X_sell_test, Y_cls_sell_test, Y_reg_sell_test, 
-X_hold_test, Y_cls_hold_test, Y_reg_hold_test = generate_data(rates, 
-                                                         r = train_test_ratio, 
-                                                         test = True, 
-                                                         save_img = True)
+                                                            save_img = True,
+                                                            tp = 0.00500, 
+                                                            sl = 0.00250, 
+                                                            sl_h = 0.00150, 
+                                                            window_range_back = 30, 
+                                                            window_range_front = 15)
+
                                                                                                                                                     
                                                                                                                                                     

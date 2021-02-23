@@ -1,6 +1,9 @@
 *.jpg
 *.npy
 
+.vscode/
+
+__pycache__
 data/chart/train/buy/*.jpg
 data/chart/train/sell/*.jpg
 data/chart/train/hold/*.jpg
