@@ -1,4 +1,5 @@
 *.jpg
 *.npy
 *.csv
-data/
+data/*
+
