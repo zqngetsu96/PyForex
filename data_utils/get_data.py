@@ -1,8 +1,23 @@
 import numpy as np
 import pandas as pd
 import mplfinance as mpf
+import os
+import glob
 
 
+
+paths = ['./data/chart/test/buy',
+    './data/chart/test/hold',
+    './data/chart/test/sell',
+    './data/chart/train/buy',
+    './data/chart/train/hold',
+    './data/chart/train/sell'
+    './data/gasf/train/buy',
+    './data/gasf/train/hold',
+    './data/gasf/train/sell',
+    './data/gasf/test/buy',
+    './data/gasf/test/hold',
+    './data/gasf/test/sell']
 
 def load_frames(path): #takes full path
     rates = pd.read_csv(path,sep =";",names=["Date","hour","Open", "High", "Low", "Close","Volume"],parse_dates=True).reset_index(drop=True)
@@ -71,6 +86,13 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
         end = int(len(rates) * r)
         folder = 'data/chart/train'
    
+
+    if save_img == True:
+        for path in paths:
+            files = glob.glob(path+'/*.jpg')
+            for f in files:
+                os.remove(f)
+
     i = start
     while (i<end): #hold ops
         window_back = rates[i-window_range_back:i]
