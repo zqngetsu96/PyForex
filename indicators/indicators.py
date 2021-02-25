@@ -25,21 +25,21 @@ def create_percentage(rates, price = 'Close'):
     return keys
 
 def create_RSI(rates,period=14, price = 'Close' ):
-    price = rates.price.Values
+    price = rates[price].values
     rates['RSI'] = tb.RSI(price, timeperiod=period)
     keys = ['RSI']
     return keys
     
 def create_MACD(rates, n_slow = 26, n_fast = 10, price = 'Close'):
     price = rates[price].values
-    macd ,_ , macdsignal = MACDEXT(price, fastperiod=n_fast, fastmatype=0, slowperiod=n_slow, slowmatype=0, signalperiod=9, signalmatype=0)
+    macd, macdsignal, macdhist = tb.MACD(price, fastperiod=12, slowperiod=26, signalperiod=9)
     rates['MACD'] = macd
     rates['MACDSIGNAL'] = macdsignal
     keys = ['MACD','MACDSIGNAL']
     return keys
 
 def create_bollinger_bands(rates, r = 20, dev = 2, price = 'Close'):
-    price = rates.price.values
+    price = rates[price].values
     upperband, middleband, lowerband = BBANDS(price, timeperiod=r, nbdevup=2)
     rates['bands'] = middleband
     rates['upperband'] = upperband
@@ -48,12 +48,12 @@ def create_bollinger_bands(rates, r = 20, dev = 2, price = 'Close'):
     return keys
     
 def create_moving_average(rates, range1 = 200, range2 = 50, price = 'Close'):
-    price = rates.price.values
+    price = rates[price].values
     rates['MA1'] = tb.SMA(price,range1)
-    rates["MA1diff"] = rates[price] - rates["MA1"]
+    rates["MA1diff"] = price - rates["MA1"].values
     rates['MA2'] = tb.SMA(price,range2)
-    rates["MA2diff"] = rates[price] - rates["MA2"]
-    rates["MA12diff"] = rates["MA1"] - rates["MA2"]
+    rates["MA2diff"] = price - rates["MA2"].values
+    rates["MA12diff"] = rates["MA1"].values - rates["MA2"].values
     
     keys = ['MA1','MA2','MA1diff','MA2diff','MA12diff']
     return keys
