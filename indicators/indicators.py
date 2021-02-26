@@ -30,9 +30,9 @@ def create_RSI(rates,period=14, price = 'Close' ):
     keys = ['RSI']
     return keys
     
-def create_MACD(rates, n_slow = 26, n_fast = 10, price = 'Close'):
+def create_MACD(rates, n_slow = 26, n_fast = 10, signalperiod = 9, price = 'Close'):
     price = rates[price].values
-    macd, macdsignal, macdhist = tb.MACD(price, fastperiod=12, slowperiod=26, signalperiod=9)
+    macd, macdsignal, macdhist = tb.MACD(price, fastperiod=n_fast, slowperiod=n_slow, signalperiod=signalperiod)
     rates['MACD'] = macd
     rates['MACDSIGNAL'] = macdsignal
     keys = ['MACD','MACDSIGNAL']
@@ -40,7 +40,7 @@ def create_MACD(rates, n_slow = 26, n_fast = 10, price = 'Close'):
 
 def create_bollinger_bands(rates, r = 20, dev = 2, price = 'Close'):
     price = rates[price].values
-    upperband, middleband, lowerband = BBANDS(price, timeperiod=r, nbdevup=2)
+    upperband, middleband, lowerband = BBANDS(price, timeperiod=r, nbdevup=dev)
     rates['bands'] = middleband
     rates['upperband'] = upperband
     rates['lowerband'] = lowerband

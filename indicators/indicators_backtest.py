@@ -3,6 +3,14 @@ import numpy as np
 import talib as tb
 from indicators.indicator_utils import *
 
+def Envelopes(values, n, deviation):
+    """
+    Return simple moving average of `values`, at
+    each step taking into account `n` previous values.
+    """
+    mean = pd.Series(values).rolling(n).mean()
+    return mean,mean+mean*deviation,mean-mean*deviation
+
 
 def create_HA(rates):
     df_HA = rates.copy()
@@ -19,52 +27,21 @@ def create_HA(rates):
     keys = ['Open','High','Low','Close']
     return df_HA,keys
 
-def create_percentage(rates, price = 'Close'):
-    rates["percentage"] = rates[price].pct_change()
-    keys = ['percentage']
-    return keys
+def create_percentage(values):
+    return pd.Series(values).pct_change() * 100
+   
 
-def create_RSI(rates,period=14, price = 'Close' ):
-    price = rates[price].values
-    rates['RSI'] = tb.RSI(price, timeperiod=period)
-    keys = ['RSI']
-    return keys
+def create_RSI(values,period=14):
+    return tb.RSI(values, timeperiod=period)
     
-def create_MACD(rates, n_slow = 26, n_fast = 10, price = 'Close'):
-    price = rates[price].values
-    macd, macdsignal, macdhist = tb.MACD(price, fastperiod=12, slowperiod=26, signalperiod=9)
-    rates['MACD'] = macd
-    rates['MACDSIGNAL'] = macdsignal
-    keys = ['MACD','MACDSIGNAL']
-    return keys
+def create_MACD(values, n_slow = 26, n_fast = 10, signalperiod = 9):
+    macd, macdsignal, macdhist = tb.MACD(values, fastperiod=n_fast, slowperiod=n_slow, signalperiod=signalperiod)
+    return macd, macdsignal
 
-def create_bollinger_bands(rates, r = 20, dev = 2, price = 'Close'):
-    price = rates[price].values
-    upperband, middleband, lowerband = BBANDS(price, timeperiod=r, nbdevup=2)
-    rates['bands'] = middleband
-    rates['upperband'] = upperband
-    rates['lowerband'] = lowerband
-    keys = ['bands','upperband','lowerband']
-    return keys
+def create_bollinger_bands(values, r = 20, dev = 2):
+    upperband, middleband, lowerband = tb.BBANDS(values, timeperiod=r, nbdevup=dev, nbdevdn=dev)
+    return upperband, middleband,lowerband
     
-def create_moving_averages(rates, range1 = 200, range2 = 50, price = 'Close'):
-    price = rates[price].values
-    rates['MA1'] = tb.SMA(price,range1)
-    rates["MA1diff"] = price - rates["MA1"].values
-    rates['MA2'] = tb.SMA(price,range2)
-    rates["MA2diff"] = price - rates["MA2"].values
-    rates["MA12diff"] = rates["MA1"].values - rates["MA2"].values
-    
-    keys = ['MA1','MA2','MA1diff','MA2diff','MA12diff']
-    return keys
+def create_moving_averages(values, range1 = 21, range2 = 55, range3 = 128):
+    return tb.EMA(values,range1),tb.EMA(values,range2),tb.EMA(values,range3)
 
-def create_moving_average_diff(rates, range1 = 200, range2 = 50, price = 'Close'):
-    price = rates[price].values
-    rates['MA1'] = tb.SMA(price,range1)
-    rates["MA1diff"] = price - rates["MA1"].values
-    rates['MA2'] = tb.SMA(price,range2)
-    rates["MA2diff"] = price - rates["MA2"].values
-    rates["MA12diff"] = rates["MA1"].values - rates["MA2"].values
-    
-    keys = ['MA1','MA2','MA1diff','MA2diff','MA12diff']
-    return keys

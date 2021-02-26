@@ -14,25 +14,16 @@ from backtesting import Strategy
 from backtesting.lib import crossover
 
 
-def SMA(values, n):
-    """
-    Return simple moving average of `values`, at
-    each step taking into account `n` previous values.
-    """
-    deviation = 0.8 / 100
-    mean = pd.Series(values).rolling(n).mean()
-    return mean,mean+mean*deviation,mean-mean*deviation
 
-class SmaCross(Strategy):
+class Strat(Strategy):
     # Define the two MA lags as *class variables*
     # for later optimization
-    n1 = 10
-    n2 = 20
+    n1 = 500
     
     def init(self):
         # Precompute the two moving averages
-        self.sma1,self.sma_upper,self.sma_lower = self.I(SMA, self.data.Close, self.n1)
-    
+
+        _,_,_ = self.I(reg_envelopes,self.data,price='Close',deviation = 0.008, reg_window=250, reg_mean=75, env_mean = 200, bands_mean = 200, bbdev = 2)
     def next(self):
         # If sma1 crosses above sma2, close any existing
         # short trades, and buy the asset
@@ -46,10 +37,10 @@ class SmaCross(Strategy):
             self.position.close()
             self.sell()"""
 
-path = './data/csv/EURUSD60.csv'
-rates = load_frames(path)
+path = './data/csv/EURUSD.s60.csv'
+rates = load_frames(path)[-1000:]
 
-bt = Backtest(rates, SmaCross, cash=10_000, commission=.002)
+bt = Backtest(rates, Strat, cash=10_000, commission=.002)
 stats = bt.run()
 print(stats)
 
