@@ -27,3 +27,4 @@ def reg_envelopes(rates, price='Close', deviation = 0.008, reg_window=250, reg_m
 
     
     return new_pol,pol_lower,pol_upper
+
