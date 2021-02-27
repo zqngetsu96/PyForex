@@ -8,6 +8,17 @@ import IPython.display as IPydisplay
 import matplotlib.pyplot as plt 
 import cv2
 
+def crop_image(img,tol=0):
+    # img is 2D or 3D image data
+    # tol  is tolerance
+    mask = img>tol
+    if img.ndim==3:
+        mask = mask.all(2)
+    m,n = mask.shape
+    mask0,mask1 = mask.any(0),mask.any(1)
+    col_start,col_end = mask0.argmax(),n-mask0[::-1].argmax()
+    row_start,row_end = mask1.argmax(),m-mask1[::-1].argmax()
+    return img[row_start:row_end,col_start:col_end]
 
 def get_img_from_fig(fig, dpi=50):
     buf = io.BytesIO()
@@ -22,9 +33,10 @@ def get_img_from_fig(fig, dpi=50):
 def return_img(window_back,dpi = 50, rcparams = {}):
     buf = io.BytesIO()
     save = dict(fname=buf,dpi=dpi)
-    s = mpf.make_mpf_style(base_mpf_style='yahoo',gridcolor='black',facecolor='black',rc=rcparams,figcolor='black')
+    s = mpf.make_mpf_style(base_mpf_style='yahoo',gridstyle='',facecolor='black',rc=rcparams,figcolor='black')
     fig,_ = mpf.plot(window_back,type='candle',volume=True,savefig=save,style=s,returnfig = True)
     img = get_img_from_fig(fig, dpi=dpi)
+    img = crop_image(img)
     return img
 
 
@@ -98,7 +110,7 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
         end = int(len(rates) * r)
         folder = 'data/'
    
-
+#Clean old data (Just in case acquisition window is changed or something, else you end up with unwanted data.)
     if save_img == True:
         for path in paths:
             files = glob.glob(path+'/*.jpg')
