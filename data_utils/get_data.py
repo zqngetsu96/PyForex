@@ -33,10 +33,10 @@ def get_img_from_fig(fig, dpi=50):
 def return_img(window_back,dpi = 50, rcparams = {}):
     buf = io.BytesIO()
     save = dict(fname=buf,dpi=dpi)
-    s = mpf.make_mpf_style(base_mpf_style='yahoo',gridstyle='',facecolor='black',rc=rcparams,figcolor='black')
+    s = mpf.make_mpf_style(gridstyle='',rc=rcparams)
     fig,_ = mpf.plot(window_back,type='candle',volume=False,savefig=save,style=s,returnfig = True)
     img = get_img_from_fig(fig, dpi=dpi)
-    img = img[40:282,95:431,:] #isolate axes
+    img = (255.0-img[40:282,95:431,:])/255.0 #inverted image and normalized
     #img = crop_image(img)
     return img
 
