@@ -11,7 +11,7 @@ reg_window = 250
 reg_mean = 75
 deviation = 1 / 100
 
-path = './data/csv/EURUSD60.csv'
+path = './data/csv/EURUSD.s60.csv'
 
 rates = load_frames(path)
 rates = rates[-acq_window:]
@@ -29,8 +29,8 @@ X_buy, X_buy_chart, Y_reg_buy, X_sell, X_sell_chart, Y_reg_sell, X_hold, X_hold_
                                                             tp = 0.00500, 
                                                             sl = 0.00250, 
                                                             sl_h = 0.00150, 
-                                                            window_range_back = 30, 
+                                                            window_range_back = 72, 
                                                             window_range_front = 15)
 
-                                                                                                                                                    
-                                                                                                                                                    
+plt.imshow(X_buy_chart[0])
+plt.show()

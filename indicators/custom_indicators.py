@@ -4,7 +4,7 @@ import talib as tb
 from indicators.indicator_utils import *
 
 
-def reg_envelopes(rates, price = 'Close', deviation = 0.008, reg_window=1000, reg_mean=75):
+def reg_envelopes(rates, price = 'Close', deviation = 0.008, reg_window=250, reg_mean=75):
     rates["new_pol"] = (rates["Close"].rolling(reg_window).apply(regression(rates,price), raw=False)).rolling(reg_mean).mean()
     rates["new_pol_upper"] = rates["new_pol"].values + rates["new_pol"].values * deviation
     rates["new_pol_lower"] = rates["new_pol"].values - rates["new_pol"].values * deviation

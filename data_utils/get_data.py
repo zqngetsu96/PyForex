@@ -34,9 +34,10 @@ def return_img(window_back,dpi = 50, rcparams = {}):
     buf = io.BytesIO()
     save = dict(fname=buf,dpi=dpi)
     s = mpf.make_mpf_style(base_mpf_style='yahoo',gridstyle='',facecolor='black',rc=rcparams,figcolor='black')
-    fig,_ = mpf.plot(window_back,type='candle',volume=True,savefig=save,style=s,returnfig = True)
+    fig,_ = mpf.plot(window_back,type='candle',volume=False,savefig=save,style=s,returnfig = True)
     img = get_img_from_fig(fig, dpi=dpi)
-    img = crop_image(img)
+    img = img[40:282,95:431,:] #isolate axes
+    #img = crop_image(img)
     return img
 
 
@@ -108,7 +109,7 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
     else:
         start = window_range_back 
         end = int(len(rates) * r)
-        folder = 'data/'
+        folder = 'data/chart/train'
    
 #Clean old data (Just in case acquisition window is changed or something, else you end up with unwanted data.)
     if save_img == True:
