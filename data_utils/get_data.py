@@ -7,7 +7,15 @@ import io
 import IPython.display as IPydisplay
 import matplotlib.pyplot as plt 
 import cv2
+def plot_pivots(X, pivots):
+    plt.xlim(0, len(X))
+    plt.ylim(X.min()*0.99, X.max()*1.01)
+    plt.plot(np.arange(len(X)), X, 'k:', alpha=0.5)
+    plt.plot(np.arange(len(X))[pivots != 0], X[pivots != 0], 'k-')
+    plt.scatter(np.arange(len(X))[pivots == 1], X[pivots == 1], color='g')
+    plt.scatter(np.arange(len(X))[pivots == -1], X[pivots == -1], color='r')
 
+    
 def crop_image(img,tol=0):
     # img is 2D or 3D image data
     # tol  is tolerance
