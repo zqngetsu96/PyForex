@@ -8,8 +8,8 @@ from data_utils.get_data import *
 from trendln import *
 from indicators.indicators import *
 from indicators.custom_indicators import *
-
-acq_window = 500
+from indicators.harmonics import *
+acq_window = 3000
 reg_window = 100
 reg_mean = 75
 deviation = 0.75 / 100
@@ -21,11 +21,10 @@ path = './data/csv/EURUSD.s60.csv'
 
 rates = load_frames(path)
 rates.tail()
-rates = rates[-acq_window:]
 
 print(rates.tail())
 
-
+"""
 df_HA,keys = create_HA(rates)
 keys_1 = reg_envelopes(df_HA, price_col ,deviation,reg_window,reg_mean)
 keys_2 = create_MACD(df_HA)
@@ -57,6 +56,24 @@ X_buy, X_buy_chart, Y_reg_buy, X_sell, X_sell_chart, Y_reg_sell, X_hold, X_hold_
                                 sl_h = 0.00150, 
                                 window_range_back = 30, 
                                 window_range_front = 15)
+
+"""
+
+price = rates.Close
+err_allowed = 0.1/100
+# Find peaks
+for i in range(100, len(price)):
+    current_idx, current_pat, start, end = peak_detect(price.values[:i])
+    plt.plot(np.arange(start, i), price.values[start:i])
+    plt.scatter(current_idx, current_pat, c='r')
+    plt.show()
+
+
+
+
+
+
+
 
 
 while(True):

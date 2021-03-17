@@ -23,7 +23,7 @@ class Strat(Strategy):
     def init(self):
         # Precompute the two moving averages
 
-        _,_,_ = self.I(reg_envelopes,self.data,price='Close',deviation = 0.008, reg_window=250, reg_mean=75, env_mean = 200, bands_mean = 200, bbdev = 2)
+        stoch = self.I()
     def next(self):
         # If sma1 crosses above sma2, close any existing
         # short trades, and buy the asset
