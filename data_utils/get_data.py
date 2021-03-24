@@ -7,6 +7,7 @@ import io
 import IPython.display as IPydisplay
 import matplotlib.pyplot as plt 
 import cv2
+from pyts.image import GramianAngularField
 def plot_pivots(X, pivots):
     plt.xlim(0, len(X))
     plt.ylim(X.min()*0.99, X.max()*1.01)
@@ -73,7 +74,7 @@ def get_default_rcparams():
             }
 
 
-def generate_data(rates,r = 0.7,test = True, save_img = True, 
+def generate_data(rates,r = 0.7,test = True, save_img = True, save_gasf = True, gasf_imsize = 16,
                   tp = 0.00500, 
                   sl = 0.00250, 
                   sl_h = 0.00250, 
@@ -86,7 +87,7 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
                 'axes.spines.right':False,
                 'axes.spines.top':False,
             }):
-    
+    gasf = GramianAngularField(image_size=gasf_imsize, method='summation')
     X_buy = list() #N OHLC candles window
     X_buy_chart = list()
     X_buy_gasf = list()
@@ -103,7 +104,7 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
     Y_reg_hold = list()    
     
     save_img = save_img
-
+    save_gasf = save_gasf
         
     TP = tp
     SL_hold = sl_h
@@ -143,6 +144,9 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
             if save_img == True:  
                 img = return_img(window_back, dpi = dpi, rcparams=rcparams)
                 X_hold_chart.append(img)
+            if save_gasf == True:
+                X_gasf = gasf.fit_transform(window_back.values.transpose([1,0]))
+                X_hold_gasf.append(X_gasf)
         else:
             i+=1
                
@@ -168,6 +172,9 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
             if save_img == True:
                 img = return_img(window_back, dpi = dpi, rcparams=rcparams)
                 X_buy_chart.append(img)
+            if save_gasf == True:
+                X_gasf = gasf.fit_transform(window_back.values.transpose([1,0]))
+                X_buy_gasf.append(X_gasf)
         elif len(TP_hit) > 0 and len(SL_hit) > 0:  #buy (both tp and sl hit but SL is hit after TP so trade won)
             TP_hit = TP_hit.iloc[0]
             SL_hit = SL_hit.iloc[0]
@@ -178,6 +185,9 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
                 if save_img == True:
                     img = return_img(window_back, dpi = dpi, rcparams=rcparams)
                     X_buy_chart.append(img)
+                if save_gasf == True:
+                    X_gasf = gasf.fit_transform(window_back.values.transpose([1,0]))
+                    X_buy_gasf.append(X_gasf)
             else:
                 i+=1
         else:
@@ -210,6 +220,9 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
             if save_img == True:
                 img = return_img(window_back, dpi = dpi, rcparams=rcparams)
                 X_sell_chart.append(img)
+            if save_gasf == True:
+                X_gasf = gasf.fit_transform(window_back.values.transpose([1,0]))
+                X_sell_gasf.append(X_gasf)
         elif len(TP_hit) > 0 and len(SL_hit) > 0:  #buy (both tp and sl hit but SL is hit after TP so trade won)
             TP_hit = TP_hit.iloc[0]
             SL_hit = SL_hit.iloc[0]
@@ -220,6 +233,9 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
                 if save_img == True:
                     img = return_img(window_back, dpi = dpi, rcparams=rcparams)
                     X_sell_chart.append(img)    
+                if save_gasf == True:
+                    X_gasf = gasf.fit_transform(window_back.values.transpose([1,0]))
+                    X_sell_gasf.append(X_gasf)
             else:
                 i+=1
         else:
@@ -228,32 +244,38 @@ def generate_data(rates,r = 0.7,test = True, save_img = True,
 
     X_buy = np.array(X_buy) #72 OHLC candles window
     X_buy_chart = np.array(X_buy_chart)
+    X_buy_gasf = np.array(X_buy_gasf)
     Y_reg_buy = np.array(Y_reg_buy) #Next 72 values
 
 
     X_sell = np.array(X_sell)
     X_sell_chart = np.array(X_sell_chart)
+    X_sell_gasf = np.array(X_sell_gasf)
     Y_reg_sell = np.array(Y_reg_sell)
 
 
     X_hold = np.array(X_hold)
     X_hold_chart = np.array(X_hold_chart)
+    X_hold_gasf = np.array(X_hold_gasf)
     Y_reg_hold = np.array(Y_reg_hold)
 
 
     print(X_buy.shape)
     print(Y_reg_buy.shape)
+    print(X_buy_gasf.shape)
     print(X_buy_chart.shape)
     
     
     print(X_sell.shape)
     print(Y_reg_sell.shape)
+    print(X_sell_gasf.shape)
     print(X_sell_chart.shape)
     
     print(X_hold.shape)
     print(Y_reg_hold.shape)
+    print(X_hold_gasf.shape)
     print(X_hold_chart.shape)
 
 
     
-    return X_buy, X_buy_chart, Y_reg_buy, X_sell, X_sell_chart, Y_reg_sell, X_hold, X_hold_chart, Y_reg_hold
+    return X_buy, X_buy_chart, X_buy_gasf, Y_reg_buy, X_sell, X_sell_chart, X_sell_gasf, Y_reg_sell, X_hold, X_hold_chart, X_sell_gasf, Y_reg_hold

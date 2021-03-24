@@ -1,2 +1,2 @@
 # PyForex
- A framework for custom strategies (indicators or AI models)
+ A python framework for custom strategies (indicators or AI models) in FOREX, commodities, and cryptocurrency trading

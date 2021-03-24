@@ -9,7 +9,8 @@ from trendln import *
 from indicators.indicators import *
 from indicators.custom_indicators import *
 from indicators.harmonics import *
-acq_window = 3000
+from pyts.image import GramianAngularField
+acq_window = 300
 reg_window = 100
 reg_mean = 75
 deviation = 0.75 / 100
@@ -19,10 +20,33 @@ price_col = 'Close'
 
 path = './data/csv/EURUSD.s60.csv'
 
+
 rates = load_frames(path)
+
+rates = rates[-acq_window:]
 rates.tail()
 
-print(rates.tail())
+#print(rates.tail())
+
+X_buy, X_buy_chart, X_buy_gasf, Y_reg_buy, X_sell, X_sell_chart, X_sell_gasf, Y_reg_sell, X_hold, X_hold_chart, X_sell_gasf, Y_reg_hold = generate_data(rates, 
+                                r = 1,
+                                test = False,
+                                save_img = True,
+                                save_gasf = True,
+                                gasf_imsize= 24,
+                                tp = 0.00500, 
+                                sl = 0.00250, 
+                                sl_h = 0.00150, 
+                                window_range_back = 36, 
+                                window_range_front = 15)
+
+print(X_buy.shape)
+
+gasf = GramianAngularField(image_size=16, method='summation')
+X_gasf = gasf.fit_transform(X_buy[0].transpose([1,0]))
+print(X_gasf[3].shape)
+plt.imshow(X_gasf[3,:])
+plt.show()
 
 """
 df_HA,keys = create_HA(rates)
@@ -47,17 +71,9 @@ keys = create_zigzag(rates,pct = 0.3)
 addp3 = mpf.make_addplot(rates[keys])
 mpf.plot(rates, type='candle', volume = True,addplot = [addp3], style = 'yahoo',show_nontrading = False,block=False)
 
-X_buy, X_buy_chart, Y_reg_buy, X_sell, X_sell_chart, Y_reg_sell, X_hold, X_hold_chart, Y_reg_hold = generate_data(rates, 
-                                r = 1,
-                                test = False,
-                                save_img = True,
-                                tp = 0.00500, 
-                                sl = 0.00250, 
-                                sl_h = 0.00150, 
-                                window_range_back = 30, 
-                                window_range_front = 15)
 
-"""
+
+
 
 price = rates.Close
 err_allowed = 0.1/100
@@ -68,14 +84,7 @@ for i in range(100, len(price)):
     plt.scatter(current_idx, current_pat, c='r')
     plt.show()
 
-
-
-
-
-
-
-
-
+"""
 while(True):
     msg = input('Close? [N],y\n')
     if msg == 'y':
