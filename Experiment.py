@@ -42,13 +42,8 @@ X_buy, X_buy_chart, X_buy_gasf, Y_reg_buy, X_sell, X_sell_chart, X_sell_gasf, Y_
 
 print(X_buy.shape)
 
-gasf = GramianAngularField(image_size=16, method='summation')
-X_gasf = gasf.fit_transform(X_buy[0].transpose([1,0]))
-print(X_gasf[3].shape)
-plt.imshow(X_gasf[3,:])
-plt.show()
 
-"""
+
 df_HA,keys = create_HA(rates)
 keys_1 = reg_envelopes(df_HA, price_col ,deviation,reg_window,reg_mean)
 keys_2 = create_MACD(df_HA)
@@ -73,8 +68,6 @@ mpf.plot(rates, type='candle', volume = True,addplot = [addp3], style = 'yahoo',
 
 
 
-
-
 price = rates.Close
 err_allowed = 0.1/100
 # Find peaks
@@ -84,7 +77,14 @@ for i in range(100, len(price)):
     plt.scatter(current_idx, current_pat, c='r')
     plt.show()
 
-"""
+
+gasf = GramianAngularField(image_size=16, method='summation')
+X_gasf = gasf.fit_transform(X_buy[0].transpose([1,0]))
+print(X_gasf[3].shape)
+plt.imshow(X_gasf[3,:])
+plt.show()
+
+
 while(True):
     msg = input('Close? [N],y\n')
     if msg == 'y':
