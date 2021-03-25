@@ -67,7 +67,6 @@ addp3 = mpf.make_addplot(rates[keys])
 mpf.plot(rates, type='candle', volume = True,addplot = [addp3], style = 'yahoo',show_nontrading = False,block=False)
 
 
-"""
 price = rates.Close
 err_allowed = 0.1/100
 # Find peaks
@@ -76,14 +75,12 @@ for i in range(100, len(price)):
     plt.plot(np.arange(start, i), price.values[start:i])
     plt.scatter(current_idx, current_pat, c='r')
     plt.show()
-"""
 
 gasf = GramianAngularField(image_size=16, method='summation')
 X_gasf = gasf.fit_transform(X_buy[0].transpose([1,0]))
 print(X_gasf[3].shape)
 plt.imshow(X_gasf[3,:])
 plt.show()
-
 
 while(True):
     msg = input('Close? [N],y\n')

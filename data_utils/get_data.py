@@ -75,6 +75,7 @@ def get_default_rcparams():
 
 
 def generate_data(rates,r = 0.7,test = True, save_img = True, save_gasf = True, gasf_imsize = 16,
+                  save_npy = True,
                   tp = 0.00500, 
                   sl = 0.00250, 
                   sl_h = 0.00250, 
@@ -276,6 +277,7 @@ def generate_data(rates,r = 0.7,test = True, save_img = True, save_gasf = True, 
     print(X_hold_gasf.shape)
     print(X_hold_chart.shape)
 
-
+    if save_npy == True:
+        print('Saving npy candle data [to be added]')
     
     return X_buy, X_buy_chart, X_buy_gasf, Y_reg_buy, X_sell, X_sell_chart, X_sell_gasf, Y_reg_sell, X_hold, X_hold_chart, X_sell_gasf, Y_reg_hold
