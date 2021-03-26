@@ -6,7 +6,7 @@ from IPython import get_ipython
 # %%
 import MetaTrader5 as mt5
 import pandas as pd
-get_ipython().run_line_magic('matplotlib', 'qt')
+#get_ipython().run_line_magic('matplotlib', 'qt')
 
 
 # %%
